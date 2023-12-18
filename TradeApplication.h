@@ -17,7 +17,7 @@ public:
     RecordBook recordBook;
     unordered_map<string, vector<Order>> order_map;
 
-    void executeOrders(const string &flower);
+    void processOrders(const string &flower);
 
 private:
 

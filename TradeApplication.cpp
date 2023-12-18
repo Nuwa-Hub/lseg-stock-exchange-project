@@ -1,6 +1,6 @@
 #include "TradeApplication.h"
 
-void Trade::executeOrders(const std::string& flower)
+void Trade::processOrders(const std::string& flower)
 {
 	vector<Order> flower_rows = this->order_map[flower];
 

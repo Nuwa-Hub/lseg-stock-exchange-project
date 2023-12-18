@@ -34,7 +34,7 @@ int main(int argc, char* argv[])
 
     // Emplace threads into the vector
     for (int i = 0; i < num_threads; i++) {
-        threads.emplace_back(&Trade::executeOrders, &tradeInstance, flowers[i]);
+        threads.emplace_back(&Trade::processOrders, &tradeInstance, flowers[i]);
     }
 
     // Wait until threads are completed
