@@ -28,19 +28,17 @@ int main(int argc, char* argv[])
     // Set up the order_map or any other configurations.
     tradeInstance.order_map = new_order_map;
 
-    // threads for each flower and rejected orders
     const int num_threads = 5;
-    thread threads[num_threads];
-    // TODO:make dynamic array for flowers
-    string flowers[] = {"Rose", "Lavender", "Tulip", "Orchid","Lotus"};
-    for (int i = 0; i < num_threads; i++)
-    {
-        threads[i] = thread(&Trade::executeOrders, &tradeInstance, flowers[i]);
+    std::vector<std::thread> threads;
+    string flowers[] = { "Rose", "Lavender", "Tulip", "Orchid", "Lotus" };
+
+    // Emplace threads into the vector
+    for (int i = 0; i < num_threads; i++) {
+        threads.emplace_back(&Trade::executeOrders, &tradeInstance, flowers[i]);
     }
 
-    // wait until threads are completed
-    for (auto & thread : threads)
-    {
+    // Wait until threads are completed
+    for (auto& thread : threads) {
         thread.join();
     }
 

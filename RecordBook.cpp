@@ -5,13 +5,20 @@
 #include <mutex>
 #include "RecordBook.h"
 mutex mtx;
-void RecordBook::insertRecord(Order order, string exec_status)
+
+
+void RecordBook::insertRecords(queue<pair<Order, string>>& records)
 {
     lock_guard<mutex> lock(mtx);
-    order.exec_status = std::move(exec_status);
-    this->record_queue.push(order);
-}
 
+    while (!records.empty())
+    {
+        pair<Order, string> record = records.front();
+        records.pop();
+        record.first.exec_status = std::move(record.second);
+        this->record_queue.push(record.first);
+    }
+}
 const queue<Order> &RecordBook::getRecordQueue() const {
     return record_queue;
 }

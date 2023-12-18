@@ -38,18 +38,18 @@ void Trade::processBuyOrders(OrderBook& order_book, Order& order)
 {
 	priority_queue<Order, std::vector<Order>, SellOrderComparator>* sell_book = &order_book.sell_orders;
 
-	
+	queue<pair<Order, string>> orderStatusMap;
 
 	if (sell_book->empty())
 	{
-
-        this->recordBook.insertRecord(order, "New");
+		orderStatusMap.push(std::make_pair(order, "New"));
 	}
 	else
 	{
 		if (sell_book->top().price > order.price)
 		{
-            this->recordBook.insertRecord(order, "New");
+			orderStatusMap.push(std::make_pair(order, "New"));
+          
 		}
 		else
 		{
@@ -72,9 +72,11 @@ void Trade::processBuyOrders(OrderBook& order_book, Order& order)
 					top_sell_order.quantity = buy_quantity;
 					sell_book->pop();
 					sell_book->push(top_sell_order);
-                    this->recordBook.insertRecord(order, "Fill");
+					orderStatusMap.push(std::make_pair(order, "Fill"));
+                    
 					order.quantity = 0;
-                    this->recordBook.insertRecord(sell_book->top(), "PFill");
+					orderStatusMap.push(std::make_pair(order, "PFill"));
+                    
 					top_sell_order = sell_book->top();
 					top_sell_order.quantity = sell_quantity - buy_quantity;
 					sell_book->pop();
@@ -84,16 +86,19 @@ void Trade::processBuyOrders(OrderBook& order_book, Order& order)
 				else if (sell_quantity < buy_quantity)
 				{
 					order.quantity = sell_quantity;
-                    this->recordBook.insertRecord(order, "PFill");
+					orderStatusMap.push(std::make_pair(order, "PFill"));
+                    
 					order.price = row_price;
 					order.quantity = buy_quantity - sell_quantity;
-                    this->recordBook.insertRecord(sell_book->top(), "Fill");
+					orderStatusMap.push(std::make_pair(sell_book->top(), "Fill"));
+                   
 					sell_book->pop();
 				}
 				else
 				{
-                    this->recordBook.insertRecord(order, "Fill");
-                    this->recordBook.insertRecord(sell_book->top(), "Fill");
+					orderStatusMap.push(std::make_pair(sell_book->top(), "Fill"));
+					orderStatusMap.push(std::make_pair(sell_book->top(), "Fill"));
+                  
 					sell_book->pop();
 					order.quantity = 0;
 					break;
@@ -102,22 +107,26 @@ void Trade::processBuyOrders(OrderBook& order_book, Order& order)
 		}
 		
 	}
+	this->recordBook.insertRecords(orderStatusMap);
 }
 
 void Trade::processSellOrders(OrderBook& order_book, Order& order)
 {
 	priority_queue<Order, vector<Order>, BuyOrderComparator>* buy_book = &order_book.buy_orders;
+	queue<pair<Order, string>> orderStatusMap;
+
 
 	if (buy_book->empty())
 	{
-        this->recordBook.insertRecord(order, "New");
+		orderStatusMap.push(std::make_pair(order, "New"));
+       
 	}
 	else
 	{
 		if (buy_book->top().price < order.price)
 		{
-
-            this->recordBook.insertRecord(order, "New");
+			orderStatusMap.push(std::make_pair(order, "New"));
+           
 		}
 		else
 		{
@@ -144,9 +153,11 @@ void Trade::processSellOrders(OrderBook& order_book, Order& order)
 					top_buy_order.quantity = sell_quantity;
 					buy_book->pop();
 					buy_book->push(top_buy_order);
-                    this->recordBook.insertRecord(order, "Fill");
+					orderStatusMap.push(std::make_pair(order, "Fill"));
+                    
 					order.quantity = 0;
-                    this->recordBook.insertRecord(buy_book->top(), "PFill");
+					orderStatusMap.push(std::make_pair(buy_book->top(), "Fill"));
+                   
 					top_buy_order = buy_book->top();
 					top_buy_order.quantity = buy_quantity - sell_quantity;
 					buy_book->pop();
@@ -156,25 +167,27 @@ void Trade::processSellOrders(OrderBook& order_book, Order& order)
 				else if (buy_quantity < sell_quantity)
 				{
 					order.quantity = buy_quantity;
-                    this->recordBook.insertRecord(order, "PFill");
+					orderStatusMap.push(std::make_pair(order, "PFill"));
+                   
 					order.price = row_price;
 					order.quantity = sell_quantity - buy_quantity;
-                    this->recordBook.insertRecord(buy_book->top(), "Fill");
+					orderStatusMap.push(std::make_pair(buy_book->top(), "Fill"));
 					buy_book->pop();
 
 				}
 				else
 				{
-                    this->recordBook.insertRecord(order, "Fill");
-                    this->recordBook.insertRecord(buy_book->top(), "Fill");
+					orderStatusMap.push(std::make_pair(buy_book->top(), "Fill"));
+					orderStatusMap.push(std::make_pair(buy_book->top(), "Fill"));
 					buy_book->pop();
 					order.quantity = 0;
 					break;
 				}
 			}
 		}
-
+		
 	}
+	this->recordBook.insertRecords(orderStatusMap);
 }
 
 

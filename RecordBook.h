@@ -1,14 +1,17 @@
 #ifndef FLOWER_RECORDBOOK_H
 #define FLOWER_RECORDBOOK_H
-
-
+#include <mutex>
+#include <string>
+#include <unordered_map>
 #include <queue>
 #include "Order.h"
+#include <map>
 
 class RecordBook {
     queue<Order> record_queue;
 public:
-    void insertRecord(Order order, string exec_status);
+    void insertRecords(queue<pair<Order, string>>& records);
+
 
     const queue<Order> &getRecordQueue() const;
 };
