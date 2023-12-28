@@ -1,5 +1,6 @@
 #include "CSVHandler.h"
 
+
 unordered_map<string, vector<Order>> CSVHandler::convertCsvToOrderMap()
 {
 	unordered_map<string, vector<Order>> order_map;
@@ -22,10 +23,23 @@ unordered_map<string, vector<Order>> CSVHandler::convertCsvToOrderMap()
 		{
 			row.push_back(field); // Store each field
 		}
-
+		// if final field is space or empty, remove it
+		if (row.back().empty() || row.back() == " ")
+		{
+			row.pop_back();
+		}
 		Order order(row);
-		string flowerName = order.instrument;
-		order_map[flowerName].push_back(order);
+		if (order.error_message == "Accepted")
+		{
+			string flowerName = order.instrument;
+			uniqueFlowerNames.insert(flowerName);
+			order_map[flowerName].push_back(order);
+		}
+		else {
+			string flowerName = "Error_Order";
+			order_map[flowerName].push_back(order);
+		}
+		
 	
 	}
 
@@ -44,7 +58,7 @@ void CSVHandler::writeToCsv(queue<Order> trade_queue)
 
 	// adds the header row first
 	vector<string> trade_arr = { "Order ID", "Client Order ID", "Instrument", "Side",
-								"Exec Status", "Quantity", "Price"}; // header
+								"Exec Status", "Quantity", "Price","Message"}; // header
 	for (size_t i = 0; i < trade_arr.size(); ++i)
 	{
 		outputFile << trade_arr[i];
@@ -60,15 +74,32 @@ void CSVHandler::writeToCsv(queue<Order> trade_queue)
 	{
 		Order top_order = trade_queue.front();
 		trade_queue.pop();
-		outputFile
-			<< top_order.order_id << ","
-			<< top_order.customer_id << ","
-			<< top_order.instrument << ","
-			<< top_order.side << ","
-			<< top_order.exec_status << ","
-			<< top_order.quantity << ","
-			<< top_order.price << ","
-		 << endl;
+		if (top_order.error_message != "Accepted")
+		{
+			outputFile
+				<< top_order.order_id << "," 
+				<< top_order.customer_id << ","
+				<< top_order.instrument << ","
+				<< top_order.side << ","
+				<< top_order.exec_status << ","
+				<< top_order.error_quantity << ","
+				<< top_order.error_price << ","
+				<< top_order.error_message << ","
+				<< endl;
+			continue;
+		}	
+		else {
+			outputFile
+				<< top_order.order_id << ","
+				<< top_order.customer_id << ","
+				<< top_order.instrument << ","
+				<< top_order.side << ","
+				<< top_order.exec_status << ","
+				<< top_order.quantity << ","
+				<< top_order.price << ","
+				<< top_order.error_message << ","
+				<< endl;
+		}
 	}
 
 	// Close the output file

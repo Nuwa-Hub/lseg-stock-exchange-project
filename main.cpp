@@ -13,8 +13,7 @@ int main(int argc, char* argv[])
         return 1;
     }*/
 
-    const string INPUT_FILE_PATH = "../../../examples/ex2.csv";
-//    const string INPUT_FILE_PATH = "./examples/test.csv";
+    const string INPUT_FILE_PATH = "../../../examples/ex5.csv";
     //const string INPUT_FILE_PATH = argv[1];
 
     cout << "start..." << endl;
@@ -28,14 +27,15 @@ int main(int argc, char* argv[])
     // Set up the order_map or any other configurations.
     tradeInstance.order_map = new_order_map;
 
-    const int num_threads = 5;
-    std::vector<std::thread> threads;
-    string flowers[] = { "Rose", "Lavender", "Tulip", "Orchid", "Lotus" };
+    const int num_threads = 6;
+    vector<thread> threads;
 
-    // Emplace threads into the vector
-    for (int i = 0; i < num_threads; i++) {
-        threads.emplace_back(&Trade::processOrders, &tradeInstance, flowers[i]);
-    }
+    for (string flower : read_file.uniqueFlowerNames )
+    {
+		threads.emplace_back(&Trade::processOrders, &tradeInstance, flower);
+	}
+
+    threads.emplace_back(&Trade::processErrorOrders, &tradeInstance);
 
     // Wait until threads are completed
     for (auto& thread : threads) {
@@ -45,6 +45,6 @@ int main(int argc, char* argv[])
     // making the final csv file
     CSVHandler write_file("execution_report.csv");
     write_file.writeToCsv(tradeInstance.recordBook.getRecordQueue());
-
+    cout << "End..." << endl;
     return 0;
 }

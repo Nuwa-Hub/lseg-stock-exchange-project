@@ -13,6 +13,7 @@ using namespace std;
 
 class CSVHandler {
 public:
+    unordered_set<string> uniqueFlowerNames;
 
     explicit CSVHandler(string filename) : filename(std::move(filename)) {}
 
@@ -22,6 +23,7 @@ public:
 
 private:
     string filename;
+     
 
 };
 

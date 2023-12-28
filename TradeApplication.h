@@ -18,6 +18,7 @@ public:
     unordered_map<string, vector<Order>> order_map;
 
     void processOrders(const string &flower);
+    void processErrorOrders();
 
 private:
 

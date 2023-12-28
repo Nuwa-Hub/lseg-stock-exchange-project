@@ -8,12 +8,7 @@ void Trade::processOrders(const std::string& flower)
 
 
 	for (auto order : flower_rows)
-	{
-
-		string order_id = "ord";
-		order_id.append(to_string(static_cast<int>(order.order_flow)));
-		order.order_id = order_id;
-
+	{	
 		if (order.side == "1")
 		{
 			processBuyOrders(order_book, order);
@@ -31,6 +26,21 @@ void Trade::processOrders(const std::string& flower)
 			}
 		}
 	}
+}
+
+void Trade::processErrorOrders()
+{
+	vector<Order> flower_rows = this->order_map["Error_Order"];
+
+	queue<pair<Order, string>> orderStatusMap;
+
+	for (auto& order : flower_rows)
+	{
+		orderStatusMap.push(std::make_pair(order, "Rejected"));
+	}
+
+	this->recordBook.insertRecords(orderStatusMap);
+	
 }
 
 
